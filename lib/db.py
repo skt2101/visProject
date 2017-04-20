@@ -8,7 +8,7 @@ class Database:
         self.connClosed = False
     def connectDB(self):
         try:
-            self.connection = sqlite3.connect('database/database.sqlite')
+            self.connection = sqlite3.connect('C:\users\sachin\desktop\database\database.sqlite')
         except :
             raise ValueError("Failed to connect to DB")
             traceback.print_exc()
