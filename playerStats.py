@@ -4,7 +4,6 @@ from datetime import datetime
 from sklearn.decomposition.pca import PCA
 import numpy as np
 def generatePlayerStats():
-    #utils.getAllDatafromTable('Player _Stats')
     query = """SELECT * FROM Player_Attributes a
            INNER JOIN (SELECT player_name, player_api_id AS p_id FROM Player) b ON a.player_api_id = b.p_id;"""
     data = []
@@ -27,8 +26,7 @@ def generatePlayerStats():
             visitedId.add(t[2])
         else:
             continue
-    #print(len(filtered))
-    #rint(len(filtered[0]))
+    
     toRemove = {0,1,3,6,7,8}
     final = []
     for player in filtered:
@@ -36,12 +34,9 @@ def generatePlayerStats():
         for i in range(len(player)):
             if i not in toRemove:row.append(player[i])
         final.append(row)
-    print(len(final))
-    print(len(final[0]))
-    print(final[0])
     final = np.asarray(final)
     pca = PCA().fit(final)
-    print (pca.components_)
+    
     data =[(a,b) for a,b in  zip(pca.components_[0],pca.components_[1])]
     featureVector = ["pc1","pc2"]
     utils.createFile(data, "components.csv",featureVector)
