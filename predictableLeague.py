@@ -51,11 +51,7 @@ def saveToFile(entropyLeagueDict, leagues):
         leagueRow.append(entropyMap.get('2013/2014'))
         leagueRow.append(entropyMap.get('2014/2015'))
         leagueRow.append(entropyMap.get('2015/2016'))
-        if None in leagueRow:
-            idx = leagueRow.index(None)
-            val = leagueRow[idx-1]+leagueRow[idx+1]
-            val /= 2
-            leagueRow[idx] = val
+       
         data.append(leagueRow)
     data = np.asarray(data)
     utils.createFile(data.T,"seasonEntropy.csv",featureVector)
