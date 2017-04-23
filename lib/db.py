@@ -1,5 +1,6 @@
 import sqlite3
 import traceback
+import platform
 class Database:
     def __init__(self):
         self.connection = None
@@ -8,7 +9,10 @@ class Database:
         self.connClosed = False
     def connectDB(self):
         try:
-            self.connection = sqlite3.connect('C:\users\sachin\desktop\database\database.sqlite')
+            if platform.system() is not 'Windows':
+                self.connection = sqlite3.connect('/home/ubuntu/database.sqlite')
+            else:
+                self.connection = sqlite3.connect('C:\\users\\sachin\\desktop\\database\\database.sqlite')
         except :
             raise ValueError("Failed to connect to DB")
             traceback.print_exc()
