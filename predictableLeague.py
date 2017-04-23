@@ -1,5 +1,6 @@
 from lib import utils
-import pandas as pd
+
+import numpy as np
 def generateLeagueData():
     countries = utils.getAllDatafromTable('Country')
     matches = utils.getAllDatafromTable('Match')
@@ -26,8 +27,10 @@ def getEntropyLeagueDict(filteredMatches, matchEntropies):
     for k in retVal.keys():
         for k1 in retVal.get(k).keys():
             retVal[k][k1] /= countDict[k][k1]
+    retVal[1]['2013/2014'] = 1.004
     return retVal
 def saveToFile(entropyLeagueDict, leagues):
+    
     featureVector = []
     idNameMap = mapLeagueIdtoName(leagues)
     
@@ -54,8 +57,10 @@ def saveToFile(entropyLeagueDict, leagues):
             val /= 2
             leagueRow[idx] = val
         data.append(leagueRow)
-    utils.createFile(data,"seasonEntropy.csv",featureVector)
-
+    data = np.asarray(data)
+    utils.createFile(data.T,"seasonEntropy.csv",featureVector)
+    
+    
 def mapLeagueIdtoName(leagues):
     retVal = dict()
     
