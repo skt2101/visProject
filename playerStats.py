@@ -22,7 +22,7 @@ def generatePlayerStats():
     filtered = []
     for t in temp:
         if t[2] not in visitedId:
-            filtered.append(t[:-2])
+            filtered.append(t)
             visitedId.add(t[2])
         else:
             continue
@@ -34,11 +34,53 @@ def generatePlayerStats():
         for i in range(len(player)):
             if i not in toRemove:row.append(player[i])
         final.append(row)
-    final = np.asarray(final)
-    pca = PCA().fit(final)
+    temp = []
+    for row in final:
+        temp.append(row[:-2])
+    temp = np.asarray(temp)
+    pca = PCA().fit(temp)
     
     data =[(a,b) for a,b in  zip(pca.components_[0],pca.components_[1])]
     featureVector = ["pc1","pc2"]
     utils.createFile(data, "components.csv",featureVector)
+    getEvolutionData(final)
+def getEvolutionData(players):
+    #print (players[0])
+    retVal = dict()
+    sortedByRating = sorted(players, key = lambda x  : x[1],reverse=True)[:10]
+    for player in sortedByRating:
+        playerMap = dict()
+        maptoAttach = dict()
+        playerName = player[-2]
+        x = player[0]
+        temp = []
+        for row in Database().execute('select date,overall_rating from Player_Attributes where player_api_id is '+str(x)):
+            temp.append(row)
+        for row in temp:
+            if playerMap.get(row[0].split('-')[0]) is None:
+                playerMap[row[0].split('-')[0]] = []
+            playerMap[row[0].split('-')[0]].append(row[1])
+        #print(playerMap)
+        retVal[playerName] = dict()
+        for k,v in playerMap.items():
+            retVal[playerName][k]=np.mean(v)
+        #print(retVal)
+    data = []
+    featureVector = []
+    for player in retVal.keys():
+        row = []
+        featureVector.append(player)
+        row.append(retVal.get(player).get('2007'))
+        row.append(retVal.get(player).get('2008'))
+        row.append(retVal.get(player).get('2009'))
+        row.append(retVal.get(player).get('2010'))
+        row.append(retVal.get(player).get('2011'))
+        row.append(retVal.get(player).get('2012'))
+        row.append(retVal.get(player).get('2013'))
+        row.append(retVal.get(player).get('2014'))
+        row.append(retVal.get(player).get('2015'))
+        data.append(row)
+    data = np.asarray(data)
+    utils.createFile(data.T,"topPlayerRating.csv",featureVector)
 if __name__ =='__main__':
     generatePlayerStats()
