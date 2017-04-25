@@ -3,6 +3,7 @@ from lib.db import Database
 from datetime import datetime
 from sklearn.decomposition.pca import PCA
 from sklearn.preprocessing import StandardScaler
+from sklearn.manifold import TSNE
 import numpy as np
 def generatePlayerStats():
     query = """SELECT * FROM Player_Attributes a
@@ -42,7 +43,14 @@ def generatePlayerStats():
         temp.append(row[:-2])
     temp = np.asarray(temp)
     temp = StandardScaler().fit_transform(temp)
-    pca = PCA(n_components=2,random_state=0).fit_transform(temp)
+    DimRed(temp,'PCA',namesRating)
+    DimRed(temp,'TSNE',namesRating)
+    getEvolutionData(final)
+def DimRed(temp,algo,namesRating):
+    if algo == 'PCA':
+        pca = PCA(n_components=2,random_state=0).fit_transform(temp)
+    else:
+        pca = TSNE(n_components=2,random_state=0).fit_transform(temp)
     comp1 = pca[:,0]
     comp2 = pca[:,1]
     data = []
@@ -52,8 +60,11 @@ def generatePlayerStats():
     data.sort(key = lambda x: x[3],reverse=True)
     #data =[[a,b] for a,b in  zip(comp1,comp2)]
     featureVector = ["pc1","pc2","name","rating"]
-    utils.createFile(data, "components.csv",featureVector)
-    getEvolutionData(final)
+    if algo == 'PCA':
+        utils.createFile(data, "components.csv",featureVector)
+    else:
+        utils.createFile(data, "TSNEcomponents.csv",featureVector)
+    
 def getEvolutionData(players):
     #print (players[0])
     retVal = dict()
