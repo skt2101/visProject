@@ -29,7 +29,9 @@ def generatePlayerStats():
     
     toRemove = {0,1,3,6,7,8}
     final = []
+    namesRating = []
     for player in filtered:
+        namesRating.append([player[-2],player[4]])
         row = []
         for i in range(len(player)):
             if i not in toRemove:row.append(player[i])
@@ -38,10 +40,16 @@ def generatePlayerStats():
     for row in final:
         temp.append(row[:-2])
     temp = np.asarray(temp)
-    pca = PCA().fit(temp)
-    
-    data =[(a,b) for a,b in  zip(pca.components_[0],pca.components_[1])]
-    featureVector = ["pc1","pc2"]
+    pca = PCA(n_components=2).fit_transform(temp)
+    comp1 = pca[:,0]
+    comp2 = pca[:,1]
+    data = []
+    for a,b,c in zip(comp1,comp2,namesRating):
+        data.append([a,b,c[0],c[1]])
+    data = [row for row in data if row[3]>80]
+    data.sort(key = lambda x: x[3],reverse=True)
+    #data =[[a,b] for a,b in  zip(comp1,comp2)]
+    featureVector = ["pc1","pc2","name","rating"]
     utils.createFile(data, "components.csv",featureVector)
     getEvolutionData(final)
 def getEvolutionData(players):
