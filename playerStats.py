@@ -2,6 +2,7 @@ from lib import utils
 from lib.db import Database
 from datetime import datetime
 from sklearn.decomposition.pca import PCA
+from sklearn.preprocessing import StandardScaler
 import numpy as np
 def generatePlayerStats():
     query = """SELECT * FROM Player_Attributes a
@@ -40,7 +41,8 @@ def generatePlayerStats():
     for row in final:
         temp.append(row[:-2])
     temp = np.asarray(temp)
-    pca = PCA(n_components=2).fit_transform(temp)
+    temp = StandardScaler().fit_transform(temp)
+    pca = PCA(n_components=2,random_state=0).fit_transform(temp)
     comp1 = pca[:,0]
     comp2 = pca[:,1]
     data = []

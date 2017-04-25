@@ -16,7 +16,7 @@ def createFile(data, fileName, featureVector):
     # Helper function to write a dataset to a csv file along with the column headers.
 	# Will error out if the output file already exists.
     if os.path.exists(os.path.join(os.getcwd(), fileName)):
-        raise ValueError("File already exists")
+        print("WARNING:FileExists, will be over written")
     if not fileName.endswith('csv'):
         fileName += ".csv"
     with open(fileName, 'w') as f:
