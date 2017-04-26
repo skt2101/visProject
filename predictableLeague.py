@@ -13,6 +13,44 @@ def generateLeagueData():
     matchEntropies = list(map(utils.calculateEntropy,filteredMatches))
     entropyLeagueDict = getEntropyLeagueDict(filteredMatches, matchEntropies)
     saveToFile(entropyLeagueDict, leagues)
+    getLeagueTeamEntropyDict(matchEntropies, filteredMatches,leagues,teams)
+def getLeagueTeamEntropyDict(matchEntropies, filteredMatches,leagues,teams):
+    print(teams[0])
+    teamMap = mapTeamIdtoName(teams)
+    leagueMap = mapLeagueIdtoName(leagues)
+    leagueTeamEntropyDict = dict()
+    for match in filteredMatches:
+        leagueTeamEntropyDict[match[2]] = dict()
+    for match in filteredMatches:
+        league = match[2]
+        homeTeam = match[7]
+        awayTeam = match[8]
+        season = match[3]
+        if leagueTeamEntropyDict[league].get(homeTeam) is None:
+            leagueTeamEntropyDict[league][homeTeam] = dict()
+        if leagueTeamEntropyDict[league].get(homeTeam).get(season) is None:
+            leagueTeamEntropyDict[league][homeTeam][season] = []                 
+        if leagueTeamEntropyDict[league].get(awayTeam) is None:
+            leagueTeamEntropyDict[league][awayTeam] = dict()
+        if leagueTeamEntropyDict[league].get(awayTeam).get(season) is None:
+            leagueTeamEntropyDict[league][awayTeam][season] = []
+    
+    for entropy,match in zip(matchEntropies, filteredMatches):
+        leagueTeamEntropyDict[match[2]][match[7]][match[3]].append(entropy)
+        leagueTeamEntropyDict[match[2]][match[8]][match[3]].append(entropy)
+    
+    finalData = []
+    for league in leagueTeamEntropyDict.keys():
+        teams = leagueTeamEntropyDict.get(league).keys()
+        for team in teams:
+            seasons = leagueTeamEntropyDict.get(league).get(team).keys()
+            
+            for season in seasons:
+                meanEntropy = np.mean(leagueTeamEntropyDict.get(league).get(team).get(season))
+                finalData.append([teamMap.get(team),season,meanEntropy,leagueMap.get(league)])
+        
+    featureVector = ["Team","Season","MeanEntropy","League"]
+    utils.createFile(finalData,"teamLeagueSeasonEntropy.csv",featureVector)
 
 def getEntropyLeagueDict(filteredMatches, matchEntropies):
     retVal = dict()
@@ -56,7 +94,11 @@ def saveToFile(entropyLeagueDict, leagues):
     data = np.asarray(data)
     utils.createFile(data.T,"seasonEntropy.csv",featureVector)
     
-    
+def mapTeamIdtoName(teams):
+    retVal = dict()
+    for team in teams:
+        retVal[team[1]] = team[3]
+    return retVal
 def mapLeagueIdtoName(leagues):
     retVal = dict()
     

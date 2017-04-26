@@ -39,4 +39,13 @@ def calculateEntropy(match):
 
 def removeNan(data):
     return [row for row in data if None not in row]
-
+# This is a helper function to build a map of country --> team -->players from the entire dataset.
+'''
+def buildCountryTeamPlayerMap():
+    # 1. Get the list of all the countries in the dataset.
+    countries=[]
+    for row in getAllDatafromTable('Countries'):
+        countries.append(row[1])
+    for country in countries:
+        for row in Database().execute("select * from player where country")
+'''
