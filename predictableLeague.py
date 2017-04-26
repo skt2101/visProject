@@ -47,7 +47,8 @@ def getLeagueTeamEntropyDict(matchEntropies, filteredMatches,leagues,teams):
             
             for season in seasons:
                 meanEntropy = np.mean(leagueTeamEntropyDict.get(league).get(team).get(season))
-                finalData.append([teamMap.get(team),season,meanEntropy,leagueMap.get(league)])
+                teamName = teamMap.get(team).split(",")[0]
+                finalData.append([teamName,season,meanEntropy,leagueMap.get(league)])
         
     featureVector = ["Team","Season","MeanEntropy","League"]
     utils.createFile(finalData,"teamLeagueSeasonEntropy.csv",featureVector)
