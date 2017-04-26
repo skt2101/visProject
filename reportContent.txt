@@ -1,0 +1,27 @@
+Most Predictable League : 
+
+In data science predictibility is measured by entropy, which determines the amount of change in an entity.
+We have used a similar measure to determine the predictibility of various soccer leagues across Europe.For this purpose,
+first we have merged the countries and the leagues table in the dataset together. Then we gone through all the matches and 
+removed any matches which were played outside of the available leagues and had any incomplete data or 'Nan' values.Then for each
+of the matches obtained in the previous step , we have found out the entropy of the match by taking into account the winning chances
+given by 3 different betting sites. Then we used the scipy.stats.entropy function to calculate the entropy for each match. 
+Then we found out the entropy of each of the leagues across all of the available seasons by taking the mean of the matches played
+in that league for every season. This gave us a single entropy value for each league and for each season. Using this mean 
+entropy value we were able to determine which league is the most predictable.
+As a next step we also decomposed the data obtained in the previous step and came up with mean entropy for each team across each league.
+This helped us to determine how the teams performed across leagues.
+
+
+--------------------------------------------------------------------------------------------------------------------------------
+Player Attributes and Statistics
+
+One of the interesting thing in sports is to compare evolution of players across time. For this purpose we filtered out the top players
+based on the overall rating and sorted them by decreasing order of rating. Then for each of the player attribute records available
+we found out the mean of the overall_rating column for that player across all the available years. Using this data we can find out 
+the way the players have changed across years and how their ratings have changed. 
+
+Also , one more common assumption is that usually the players who play at the common position have similar attributes. To verify this
+we took the data from the players table and decided to take the numerical attributes and run PCA on that. We set the number of 
+components to two as we wanted to plot the data on a 2-D plot. From the plot we can clearly observe that similar kind of players
+have common components and we can observer clusters on the plot. 
