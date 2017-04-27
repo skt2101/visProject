@@ -65,3 +65,21 @@ data = [row for row in data if row[3]>80]
 # Get only the players with rating more than 80.
 data.sort(key = lambda x: x[3],reverse=True)
 # sort the players by reverse order of rating.
+
+
+For establishing the link between the leagues and the players, we had to do extensive data parsing from the database.First we had 
+to find out all the leagues available in the database and then we had to iterate over all the matches in the database and for all the players involved in the match, we added the entry for the corresponding
+league. Then for each of the leagues we had to create multiple links and nodes. Each node had the data for one player with the corresponding group involved
+and the link had the data pertaining to source and destination of the players.
+
+myMap = dict()
+myMap["teams"] = []
+for league in leagues:
+    myMap["teams"].append(league[2])
+    leagueNames.append(league[2])
+
+myMap["data"] = dict()
+for t in leagueNames:
+    myMap["data"][t] = dict()
+    myMap["data"][t]["nodes"] = []
+    myMap["data"][t]["links"] = []
