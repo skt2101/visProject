@@ -5,23 +5,11 @@ app = Flask(__name__)
 @app.route("/")
 def index():
     return "Hello World"
-players = []
-players.append({"name":"Messi","country":"Argentina","id":0})
-players.append({"name":"Ronaldo","country":"Portugal","id":1})
 
-@app.route("/players",methods=['GET'])
-def getPlayers():
-    return jsonify({"players":players})
-@app.route("/players/<int:playerId>",methods=['GET'])
-def getPlayer(playerId):
-    temp = [ player for player in players if player.get("id") == playerId ]
-    if len(temp) == 0 :
-        # no player found with this particular Id.
-        abort(404)
-    return jsonify(temp)
 @app.route("/chord",methods=['GET'])
 def getBreakDown():
     return jsonify(minedData[0])
+
 @app.route("/league/scores/<int:leagueId>",methods=['GET'])
 def getLeagueScore(leagueId):
     leagues = utils.getAllDatafromTable('league')
@@ -29,6 +17,7 @@ def getLeagueScore(leagueId):
     for league in leagues:
         if league[0] == leagueId:leagueName = league[2]
     return jsonify(minedData[1].get(leagueName))
+
 @app.route("/league/transfers/<int:leagueId>",methods=['GET'])
 def getLeagueTransfer(leagueId):
     leagues = utils.getAllDatafromTable('league')
@@ -36,10 +25,10 @@ def getLeagueTransfer(leagueId):
     for league in leagues:
         if league[0] == leagueId:leagueName = league[2]
     return jsonify(minedTransfers.get(leagueName))
+
 if __name__ == '__main__':
     # first get all the data , before opening the port for client access.
     minedData = utils.temp1()
-    #print("calling app")
     minedTransfers = utils.temp2()
     app.run()
     
