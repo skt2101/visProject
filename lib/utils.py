@@ -129,14 +129,12 @@ def temp1():
         teamNameMap[team[1]] = team[3]
     matches = getAllDatafromTable('match')
     matches = removeNanPlayer(matches)
-    matches = matches[::-1]
-    print(len(matches))
+    
     to_keep = [ 1729,4769,7809,10257,21518,13274,17642]
     playerTeamMap = dict()
     all_seasons = set([row[3] for row in matches])
     all_seasons = sorted(list(all_seasons))
-    print(all_seasons)
-    #exit()
+    
     for match in matches:
             players =set( match[55:77])
             for t in players:
@@ -185,8 +183,7 @@ def temp1():
     for player in playerTeamMap.keys():
         temp = playerTeamMap.get(player)
            
-        #print(temp)
-        #print(leagueIds)
+       
         i = 0 
         while i < len(all_seasons) -1:
             
@@ -198,8 +195,7 @@ def temp1():
             except :
                 pass
             i+=1
-    #print(leagueTransferDict)
-    #exit()
+    
     retVal = dict()
     for k in leagueTransferDict.keys():
         name = leagueNameMap.get(k)
@@ -207,13 +203,9 @@ def temp1():
         for k1 in leagueTransferDict.get(k):
             temp = leagueNameMap.get(k1)
             retVal[name][temp] = leagueTransferDict[k][k1]
-    #for k in leagueTransferDict:
-    #    for k1 in leagueTransferDict.get(k):
-    #        transfers.append(k1)
-    #print(sorted(transfers,reverse=True))
-    print(retVal)
+    
     return retVal,leagueTeamScore    
-
+'''
 def playerRatingFromId(playerId):
     if not hasattr(playerRatingFromId,"playerData"):
         setattr(playerRatingFromId,"playerData",getAllDatafromTable('player_attributes'))
@@ -224,5 +216,84 @@ def getWinningChancesLeague(leagueId,team1,team2):
     matches = removeNan(matches)
     matches = [match for match in matches if match[2]== leagueId]
     # get all matches for that league
-    average_player_rating 
+    average_player_rating
+'''
+
+
+def temp2():
+       
+    leagues = getAllDatafromTable('league')
+    teams = getAllDatafromTable('team')
+    leagueNameMap = dict()
+    for league in leagues:
+        leagueNameMap[league[0]] = league[2]
+    teamNameMap = dict()
+    for team in teams:
+        teamNameMap[team[1]] = team[3]
+    
+    matches = getAllDatafromTable('match')
+    matches = removeNanPlayer(matches)
+    all_seasons = set([row[3] for row in matches])
+    all_seasons = sorted(list(all_seasons))
+    leagueTeamMap = dict()
+    teamTransferMap = dict()
+
+    for match in matches:
+        if leagueTeamMap.get(match[2]) is None:
+            leagueTeamMap[match[2]] = []
+        leagueTeamMap.get(match[2]).append(match[7])
+        leagueTeamMap.get(match[2]).append(match[8])
+    playerTeamMap = dict()
+  
+    for match in matches:
+            home_players =match[55:66]
+            away_players =match[66:77]
+            season = match[3]
+            for t in home_players:
+                if playerTeamMap.get(t) is None:
+                    playerTeamMap[t] = dict()
+                    
+                playerTeamMap[t][season] = match[7]
+            for t in away_players:
+                if playerTeamMap.get(t) is None:
+                    playerTeamMap[t] = dict()
+                playerTeamMap[t][season] = match[8]
+
+
+    for player in playerTeamMap.keys():
+        seasonTeam = playerTeamMap.get(player)
+        #print(seasonTeam)
+        teams = []
+        for season in all_seasons:
+            teams.append(seasonTeam.get(season))
+        #print(teams)    
+        i = 1 
+        while i < len(teams):
+            if teams[i]!=teams[i-1]:
+            # incoming transfer for team at index i
+                if teamTransferMap.get(teams[i]) is None:teamTransferMap[teams[i]]= dict()
+                if teamTransferMap.get(teams[i]).get(all_seasons[i]) is None:teamTransferMap.get(teams[i])[all_seasons[i]]=0
+                teamTransferMap[teams[i]][all_seasons[i]] +=1
+            i+=1
+        
+    #print(teamTransferMap)  
+
+    retVal = dict()
+    for league in leagueTeamMap.keys():
+        leagueName = leagueNameMap.get(league)
+        retVal[leagueName]=dict()
+        for team in leagueTeamMap.get(league):
+            #print(team)
+            teamName = teamNameMap.get(team)
+            retVal[leagueName][teamName] = dict()
+            #print(teamTransferMap.get(team))
+            if teamTransferMap.get(team) is not None:
+                for season,incoming in teamTransferMap.get(team).items():
+                #print(type(t))
+                #for season,incoming in t.values():
+                    #print(season,incoming)
+                    retVal[leagueName][teamName][season] = incoming
+    #exit()
+    #print(retVal)
+    return retVal          
               

@@ -21,17 +21,25 @@ def getPlayer(playerId):
     return jsonify(temp)
 @app.route("/chord",methods=['GET'])
 def getBreakDown():
-    return jsonify(t[0])
+    return jsonify(minedData[0])
 @app.route("/league/scores/<int:leagueId>",methods=['GET'])
 def getLeagueScore(leagueId):
     leagues = utils.getAllDatafromTable('league')
     leagueName=''
     for league in leagues:
         if league[0] == leagueId:leagueName = league[2]
-    return jsonify(t[1].get(leagueName))
+    return jsonify(minedData[1].get(leagueName))
+@app.route("/league/transfers/<int:leagueId>",methods=['GET'])
+def getLeagueTransfer(leagueId):
+    leagues = utils.getAllDatafromTable('league')
+    leagueName=''
+    for league in leagues:
+        if league[0] == leagueId:leagueName = league[2]
+    return jsonify(minedTransfers.get(leagueName))
 if __name__ == '__main__':
     # first get all the data , before opening the port for client access.
-    t = utils.temp1()
-    print("calling app")
+    minedData = utils.temp1()
+    #print("calling app")
+    minedTransfers = utils.temp2()
     app.run()
     
