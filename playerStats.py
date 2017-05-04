@@ -16,7 +16,7 @@ def generatePlayerStats():
     temp =[]
     for player in data:
         string = list(map(int,player[3].split()[0].split('-')))
-        currentDate = datetime(string[0],string[1],string[2])
+        currentDate = datetime(string[0],string[1],string[2]) 
         if currentDate > cutoff:
             temp.append(player)
         

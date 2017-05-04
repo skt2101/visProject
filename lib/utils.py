@@ -1,6 +1,7 @@
 from .db import Database
 from scipy.stats import entropy
 import os
+import numpy as np
 def getAllDatafromTable(tableName):
     # avoid creating multiple handles for every call to this function.
     if not hasattr(getAllDatafromTable,"connection"):
@@ -14,7 +15,7 @@ def getAllDatafromTable(tableName):
 
 def createFile(data, fileName, featureVector):
     # Helper function to write a dataset to a csv file along with the column headers.
-	# Will error out if the output file already exists.
+	# Will warn if the output file already exists.
     if os.path.exists(os.path.join(os.getcwd(), fileName)):
         print("WARNING:FileExists, will be over written")
     if not fileName.endswith('csv'):
@@ -296,4 +297,152 @@ def temp2():
     #exit()
     #print(retVal)
     return retVal          
-              
+def predict(leagueMatches,team,team1):
+     
+    # first get the 5 previous matches of team's
+    teamPrev = []
+    team1Prev = []
+    prevMatches = []
+    teamDone = False
+    team1Done = False
+    prevDone = False
+    for match in leagueMatches[::-1]:
+        if team in (match[7],match[8]) :
+            if len(teamPrev) < 5 : teamPrev.append(match)
+            else:teamDone = True
+        if team1 in (match[7],match[8]) :
+            if len(team1Prev) < 5 : team1Prev.append(match)
+            else:team1Done = True
+        if (team1 == match[7] and team == match[8]) or (team == match[7] and team1 == match[8]):
+            if len(prevMatches) < 2 : prevMatches.append(match)
+            else:
+                prevDone = True
+        if teamDone and team1Done and prevDone:
+            # we have all the data we need from the matches.
+            break
+    
+
+def minePredictionData(leagueId):
+    leagues = getAllDatafromTable('league')
+    leagueIdMap = dict()
+    for league in leagues:
+        leagueIdMap[league[0]] = league[2]
+    matches = getAllDatafromTable('match')
+    matches = removeNan(matches)
+    matches = [match for match in matches if match[2] == leagueId]
+    # matches will now have only the matches for that league.
+    # now we need to get all the teams for this league.
+    teams = []
+    for match in matches:
+        teams.append(match[7])
+        teams.append(match[8])
+    teams = set(teams)
+    retVal = dict()
+    for team in teams:
+        retVal[team] = dict()
+        for team1 in teams:
+            if team!=team1:
+                # need to create a mapping for team,team2 now.
+                retVal[team][team1] = predict(matches,team,team1)
+    return retVal
+# method to return the evolution of the top 5 players for each team for each league.
+def getCurrentPlayerRating(playerId):
+    if not hasattr(getCurrentPlayerRating,"data"):
+        setattr(getCurrentPlayerRating,"data",getAllDatafromTable('player_attributes'))
+    values = getCurrentPlayerRating.data
+    
+    ratings = []
+    for row in values:
+         if row[2] == playerId:ratings.append(row[5])
+    if len(ratings) == 0:return 0
+    idx = -1
+    while ratings[idx] is None:
+        idx -=1
+    return ratings[idx]
+def getMeanRating(playerId):
+    retVal = dict()
+    retVal[playerId] = dict()
+    # when this function is called, player_Attributes should already be there in getCurrentPlayerRating data
+    values = getCurrentPlayerRating.data
+    playerMap = dict()
+    for row in Database().execute('select date,overall_rating from Player_Attributes where player_api_id is '+str(playerId)):
+        if row[1] is not None:
+            if playerMap.get(row[0].split('-')[0]) is None:
+                playerMap[row[0].split('-')[0]] = []
+            playerMap[row[0].split('-')[0]].append(row[1])
+    for k,v in playerMap.items():
+        
+            retVal[playerId][k]=np.mean(v)
+    #print(retVal)
+    return retVal 
+def getTopPlayerforTeam(teamId):
+    if not hasattr(getTopPlayerforTeam,"data"):
+        setattr(getTopPlayerforTeam,"data",getAllDatafromTable('match'))
+    matches = getTopPlayerforTeam.data
+    players =set()
+    
+    #print(7809 in t)
+    for match in matches:
+        #print(match[7])
+        if teamId == match[7]:
+            #print("home")
+            temp = match[55:66]
+            for x in temp:
+                players.add(x)
+        if teamId == match[8]:
+            #print("away")
+            temp = match[66:77]
+            for x in temp:
+                players.add(x)
+    players = list(players)
+    
+    return sorted(players,key=getCurrentPlayerRating,reverse=True)[:5]
+def playerNameMap():
+    retVal = dict()
+    players = getAllDatafromTable('player')
+    for player in players:retVal[player[1]] = player[2]
+    return retVal
+def topPlayerEvolution():
+    retVal = dict()
+    playerName = playerNameMap()
+    leagues = getAllDatafromTable('league')
+    teams = getAllDatafromTable('team')
+    matches = getAllDatafromTable('match')
+    leagueNameMap = dict()
+    for league in leagues:
+        leagueNameMap[league[0]] = league[2]
+    teamNameMap = dict()
+    for team in teams:
+        teamNameMap[team[1]] = team[3]
+    leagueTeamMap = dict()
+    for match in matches:
+        if leagueTeamMap.get(match[2]) is None:leagueTeamMap[match[2]]=set()
+        
+        leagueTeamMap.get(match[2]).add(match[7])
+        leagueTeamMap.get(match[2]).add(match[8])
+    for league in  [ 1729,7809,21518]:
+        leagueName = leagueNameMap.get(league)
+        retVal[leagueName] = dict()
+        teams = leagueTeamMap.get(league)
+        for team in teams:
+            teamName=teamNameMap.get(team)
+            retVal[leagueName][teamName] = dict()
+            topPlayers = getTopPlayerforTeam(team)
+            for player in topPlayers:
+                t = playerName.get(player)
+                retVal[leagueName][teamName][t] = getMeanRating(player).get(player)
+    retVal1= dict()
+    for league in leagueTeamMap.keys():
+        leagueName = leagueNameMap.get(league)
+        #print(leagueName)
+        retVal1[leagueName] = []
+        teams = list(leagueTeamMap.get(league))
+        #if league == 1729:print(teams)
+        #print(teams)
+        for team in teams:
+            #if league == 1729:
+            #    print("adding team for england")
+            #retVal1[leagueName]["id"] = team
+            #retVal1[leagueName]["name"] = teamNameMap.get(team)
+            retVal1[leagueName].append({"id":team,"name":teamNameMap.get(team)})
+    return retVal,retVal1
