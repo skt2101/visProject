@@ -546,8 +546,12 @@ def diversity1():
                 if player in players:
                     t.append(leagueNameMap.get(match[2]))
                     break
-        #print(collections.Counter(t))
-        retVal[team] = collections.Counter(t)
+        x=collections.Counter(t)
+        retVal[team] = []
+        for a,b in x.items():
+            #retVal[team]["name"] = a
+            #retVal[team]["value"] = b
+            retVal[team].append({"name":a,"value":b})
     print(len((retVal.keys())))
     return retVal
 
