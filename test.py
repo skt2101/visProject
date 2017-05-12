@@ -8,8 +8,8 @@ if __name__ == '__main__':
     #print(names[55:77])
     print(names)
     
-    print(names.index('positioning'))
-    print([player[-1] for player in utils.getAllDatafromTable('player_attributes')])
+    #print(names.index('positioning'))
+    #print([player[-1] for player in utils.getAllDatafromTable('player_attributes')])
     obj.tearDown()
     #x=utils.diversity1()
     #print(x.get(10212))

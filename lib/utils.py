@@ -560,16 +560,19 @@ def diversity1():
     return retVal
 
 def prediction():
+    import random
     leagues = getAllDatafromTable('league')
-    #teams = getAllDatafromTable('team')
+    
     matches = removeNanPlayer(getAllDatafromTable('match'))
     rev_matches = matches[::-1]
     leagueNameMap = dict()
-    for league in leagues:
-        leagueNameMap[league[0]] = league[2]
+    
     teamNameMap = dict()
-    #for team in teams:
-    #    teamNameMap[team[1]] = team[3]
+    playerRatingId = dict()
+    players = getAllDatafromTable('player_Attributes')
+    for player in players[::-1]:
+        playerRatingId[player[2]] = player[4]
+        pas
     leagueTeamMap = dict()
     for match in matches:
         if leagueTeamMap.get(match[2]) is None:leagueTeamMap[match[2]]=set()
@@ -579,6 +582,27 @@ def prediction():
     retVal = dict()
     for league in  [ 1729,7809,21518,10257,4769]:
         teams = leagueTeamMap.get(league)
+        teams = random.sample(teams,10)
         currentNode = dict()
         for t in teams:
-              pass
+            for match in rev_matches:
+                if match[7] == t:
+                    players = match[55:66]
+                    break
+                if match[8] == t:
+                    players = match[66:77]
+                    break
+            for s in teams:
+                  if s!=t:
+                    for match in rev_matches:
+                        if match[7] == t:
+                            against_players = match[55:66]
+                            break
+                        if match[8] == t:
+                            against_players = match[66:77]
+                            break
+                    rating = sum([playerRatingId.get(x) for x in players])
+                    against_rating = sum([playerRatingId.get(x) for x in against_players])
+                    if abs(rating-against_rating) < 10 :
+                        currentNode[s]=1
+                    
