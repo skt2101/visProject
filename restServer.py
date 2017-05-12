@@ -77,12 +77,19 @@ def getTeamDiversity(teamId):
     resp=flask.Response(json.dumps(t))
     resp.headers['Access-Control-Allow-Headers']="X-Requested-With"
     return resp
+@app.route("/predictions/<int:leagueId>",methods=['GET'])
+def predict(leagueId):
+    t = predictions.get(leagueId)
+    resp=flask.Response(json.dumps(t))
+    resp.headers['Access-Control-Allow-Headers']="X-Requested-With"
+    return resp
 
 if __name__ == '__main__':
     # first get all the data , before opening the port for client access.
     minedData = utils.temp1()
-    minedTransfers = utils.temp2()
+    #minedTransfers = utils.temp2()
     minedLeagueData = utils.topPlayerEvolution()
     divMap = utils.diversity1()
+    predictions = utils.prediction()
     app.run()
     

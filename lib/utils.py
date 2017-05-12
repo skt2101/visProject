@@ -297,30 +297,7 @@ def temp2():
     #exit()
     #print(retVal)
     return retVal          
-def predict(leagueMatches,team,team1):
-     
-    # first get the 5 previous matches of team's
-    teamPrev = []
-    team1Prev = []
-    prevMatches = []
-    teamDone = False
-    team1Done = False
-    prevDone = False
-    for match in leagueMatches[::-1]:
-        if team in (match[7],match[8]) :
-            if len(teamPrev) < 5 : teamPrev.append(match)
-            else:teamDone = True
-        if team1 in (match[7],match[8]) :
-            if len(team1Prev) < 5 : team1Prev.append(match)
-            else:team1Done = True
-        if (team1 == match[7] and team == match[8]) or (team == match[7] and team1 == match[8]):
-            if len(prevMatches) < 2 : prevMatches.append(match)
-            else:
-                prevDone = True
-        if teamDone and team1Done and prevDone:
-            # we have all the data we need from the matches.
-            break
-    
+
 
 def minePredictionData(leagueId):
     leagues = getAllDatafromTable('league')
@@ -484,7 +461,7 @@ def diversity():
             break
     #print("out of outer match loop")
     print(teamPlayer)
-    exit()
+    
     for team in teamPlayer.keys():
         t = []
         players = teamPlayer.get(team)
@@ -516,29 +493,42 @@ def diversity1():
     teams_to_mine = []
     for league in  [ 1729,7809,21518,10257,4769]:
         teams_to_mine +=leagueTeamMap.get(league)
-    #print(teams_to_mine)
+    print(teams_to_mine)
+    print(teams_to_mine.index(8455))
+    
     completed_teams = set()
     teamPlayer = dict()
     for match in rev_matches:
-        home_team =  match[7]
-        away_team = match[8]
-        if teamPlayer.get(home_team) is None:
-            teamPlayer[home_team] = set()
-        if teamPlayer.get(away_team) is None:
-            teamPlayer[away_team] = set()
+        if match[7] in teams_to_mine: 
+            home_team =  match[7]
+        #away_team = match[8]
+            if teamPlayer.get(home_team) is None:
+                teamPlayer[home_team] = set()
+        #if teamPlayer.get(away_team) is None:
+        #    teamPlayer[away_team] = set()
               
-        home_playes = match[55:66]
-        away_players = match[66:77]
-        for player in home_playes:
-            teamPlayer[home_team].add(player)
-            if len(teamPlayer.get(home_team)) >=25:
-                completed_teams.add(home_team)
-                break
-        for player in away_players:
-            teamPlayer[away_team].add(player)
-            if len(teamPlayer.get(away_team)) >=25:
-                completed_teams.add(away_team)
-                break
+            home_playes = match[55:66]
+            #away_players = match[66:77]
+            for player in home_playes:
+                teamPlayer[home_team].add(player)
+                if len(teamPlayer.get(home_team)) >=25:
+                    completed_teams.add(home_team)
+                    break
+        if match[8] in teams_to_mine:
+           
+            away_team = match[8]
+        #if teamPlayer.get(home_team) is None:
+        #    teamPlayer[home_team] = set()
+            if teamPlayer.get(away_team) is None:
+                teamPlayer[away_team] = set()
+              
+        #home_playes = match[55:66]
+            away_players = match[66:77]
+            for player in away_players:
+                teamPlayer[home_team].add(player)
+                if len(teamPlayer.get(home_team)) >=25:
+                    completed_teams.add(home_team)
+                    break
         if len(completed_teams) == len(teams_to_mine):
             #print("done with all teams breaking")
             break
@@ -556,10 +546,16 @@ def diversity1():
                     break
         #print(collections.Counter(t))
         retVal[team] = collections.Counter(t)
-    print(retVal)
+    print(len((retVal.keys())))
     return retVal
 
 def prediction():
+    teamNameMap = dict()
+    teams = getAllDatafromTable('team')
+    for team in teams:
+        teamNameMap[team[1]] = team[3]
+    #print(teamNameMap.keys())
+    
     import random
     leagues = getAllDatafromTable('league')
     
@@ -567,12 +563,12 @@ def prediction():
     rev_matches = matches[::-1]
     leagueNameMap = dict()
     
-    teamNameMap = dict()
+    #teamNameMap = dict()
     playerRatingId = dict()
     players = getAllDatafromTable('player_Attributes')
     for player in players[::-1]:
         playerRatingId[player[2]] = player[4]
-        pas
+        
     leagueTeamMap = dict()
     for match in matches:
         if leagueTeamMap.get(match[2]) is None:leagueTeamMap[match[2]]=set()
@@ -580,11 +576,20 @@ def prediction():
         leagueTeamMap.get(match[2]).add(match[7])
         leagueTeamMap.get(match[2]).add(match[8])
     retVal = dict()
+    #print(leagueTeamMap)
+    #exit()
+    #teams = leagueTeamMap.get(1729) + leagueTeamMap.get(7809) + leagueTeamMap.get(21518) + leagueTeamMap.get(10257) + leagueTeamMap.get(4769)
     for league in  [ 1729,7809,21518,10257,4769]:
         teams = leagueTeamMap.get(league)
-        teams = random.sample(teams,10)
-        currentNode = dict()
+        randomteams = random.sample(teams,10)
+        #print(teams)
+        leagueDict = dict()
+        #print([teamNameMap.get(x) for x in teams])
+        
         for t in teams:
+            tkey = teamNameMap[t]
+            #currentTeam = dict()
+            leagueDict[tkey] = dict()
             for match in rev_matches:
                 if match[7] == t:
                     players = match[55:66]
@@ -592,17 +597,36 @@ def prediction():
                 if match[8] == t:
                     players = match[66:77]
                     break
-            for s in teams:
-                  if s!=t:
+            for s in randomteams:
+                    #print(teamNameMap.get(s))
+                    #print("new team for "+ tkey)
+                  
                     for match in rev_matches:
-                        if match[7] == t:
+                        if match[7] == s:
+                            #print("found match for "+tkey)
                             against_players = match[55:66]
                             break
-                        if match[8] == t:
+                        if match[8] == s:
+                            #print("found match for "+tkey)
                             against_players = match[66:77]
                             break
-                    rating = sum([playerRatingId.get(x) for x in players])
-                    against_rating = sum([playerRatingId.get(x) for x in against_players])
-                    if abs(rating-against_rating) < 10 :
-                        currentNode[s]=1
-                    
+                    rating = sum([playerRatingId.get(x) if playerRatingId.get(x) is not None else 0 for x in players])
+                    against_rating = sum([playerRatingId.get(x) if playerRatingId.get(x) is not None else 0 for x in against_players])
+                    #print(players,against_players)
+                    # print(rating,against_rating)
+                    key = teamNameMap.get(s)
+                    if abs(rating-against_rating) < 10:
+                        leagueDict[tkey][key]=1
+                        
+                    elif rating > against_rating:
+                        leagueDict[tkey][key] =3
+                        
+                    else:leagueDict[tkey][key] = 0
+            
+            #print("done with teams for "+tkey)
+            if leagueDict[tkey].get(tkey) is not None:del(leagueDict[tkey][tkey])
+            #leagueDict[tkey] = copy.deepcopy(currentTeam)
+        retVal[league] = leagueDict
+    
+    #print(retVal)
+    return retVal
