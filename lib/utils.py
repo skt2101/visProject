@@ -636,3 +636,100 @@ def prediction():
     
     #print(retVal)
     return retVal
+
+def prediction1():
+    teamNameInverseMap = dict()
+    teamNameMap = dict()
+    teams = getAllDatafromTable('team')
+    for team in teams:
+        teamNameMap[team[1]] = team[3]
+        teamNameInverseMap[team[3]] = team[1]
+    #print(teamNameMap.keys())
+    
+    import random
+    leagues = getAllDatafromTable('league')
+    
+    matches = removeNanPlayer(getAllDatafromTable('match'))
+    rev_matches = matches[::-1]
+    leagueNameMap = dict()
+    
+    #teamNameMap = dict()
+    playerRatingId = dict()
+    players = getAllDatafromTable('player_Attributes')
+    for player in players[::-1]:
+        playerRatingId[player[2]] = player[4]
+        
+    leagueTeamMap = dict()
+    for match in matches:
+        if leagueTeamMap.get(match[2]) is None:leagueTeamMap[match[2]]=set()
+        
+        leagueTeamMap.get(match[2]).add(match[7])
+        leagueTeamMap.get(match[2]).add(match[8])
+    retVal = dict()
+    #print(leagueTeamMap)
+    #exit()
+    #teams = leagueTeamMap.get(1729) + leagueTeamMap.get(7809) + leagueTeamMap.get(21518) + leagueTeamMap.get(10257) + leagueTeamMap.get(4769)
+    for league in  [ 1729,7809,21518,10257,4769]:
+        teams = leagueTeamMap.get(league)
+        randomteams = random.sample(teams,10)
+        #print(teams)
+        leagueDict = dict()
+        #print([teamNameMap.get(x) for x in teams])
+        
+        for t in teams:
+            tkey = teamNameMap[t]
+            #currentTeam = dict()
+            leagueDict[tkey] = dict()
+            for match in rev_matches:
+                if match[7] == t:
+                    players = match[55:66]
+                    break
+                if match[8] == t:
+                    players = match[66:77]
+                    break
+            for s in randomteams:
+                if s!=t:
+                    #print(teamNameMap.get(s))
+                    #print("new team for "+ tkey)
+                  
+                    for match in rev_matches:
+                        if match[7] == s:
+                            #print("found match for "+tkey)
+                            against_players = match[55:66]
+                            break
+                        if match[8] == s:
+                            #print("found match for "+tkey)
+                            against_players = match[66:77]
+                            break
+                    rating = sum([playerRatingId.get(x) if playerRatingId.get(x) is not None else 0 for x in players])
+                    against_rating = sum([playerRatingId.get(x) if playerRatingId.get(x) is not None else 0 for x in against_players])
+                    #print(players,against_players)
+                    # print(rating,against_rating)
+                    key = teamNameMap.get(s)
+                    if abs(rating-against_rating) < 10:
+                        leagueDict[tkey][key]=1
+                        
+                    elif rating > against_rating:
+                        leagueDict[tkey][key] =3
+                        
+                    else:leagueDict[tkey][key] = 0
+            
+            #print("done with teams for "+tkey)
+            if leagueDict[tkey].get(tkey) is not None:del(leagueDict[tkey][tkey])
+            #leagueDict[tkey] = copy.deepcopy(currentTeam)
+        retVal[league] = leagueDict
+    
+    #print(retVal)
+    #return retVal
+    newRetVal = dict()
+    for league in retVal.keys():
+        data= retVal.get(league)
+        
+        #exit()
+        for team in data.keys():
+            newRetVal[teamNameInverseMap.get(team)] = []
+            for s,t in data.get(team).items():
+                newRetVal[teamNameInverseMap.get(team)].append({"name":s,"value":t})
+    print(newRetVal)
+    print(newRetVal.get(8455))
+    return newRetVal

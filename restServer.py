@@ -77,9 +77,9 @@ def getTeamDiversity(teamId):
     resp=flask.Response(json.dumps(t))
     resp.headers['Access-Control-Allow-Origin']="*"
     return resp
-@app.route("/predictions/<int:leagueId>",methods=['GET'])
-def predict(leagueId):
-    t = predictions.get(leagueId)
+@app.route("/predictions/<int:teamId>",methods=['GET'])
+def predict(teamId):
+    t = predictions.get(teamId)
     resp=flask.Response(json.dumps(t))
     resp.headers['Access-Control-Allow-Origin']="*"
     return resp
@@ -90,6 +90,6 @@ if __name__ == '__main__':
     #minedTransfers = utils.temp2()
     minedLeagueData = utils.topPlayerEvolution()
     divMap = utils.diversity1()
-    predictions = utils.prediction()
+    predictions = utils.prediction1()
     app.run()
     
