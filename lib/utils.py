@@ -2,6 +2,7 @@ from .db import Database
 from scipy.stats import entropy
 import os
 import numpy as np
+import random
 def getAllDatafromTable(tableName):
     # avoid creating multiple handles for every call to this function.
     if not hasattr(getAllDatafromTable,"connection"):
@@ -422,6 +423,7 @@ def topPlayerEvolution():
             #retVal1[leagueName]["id"] = team
             #retVal1[leagueName]["name"] = teamNameMap.get(team)
             retVal1[leagueName].append({"id":team,"name":teamNameMap.get(team)})
+        retVal1[leagueName] = random.sample(retVal1.get(leagueName),10)
     return retVal,retVal1
 
 
