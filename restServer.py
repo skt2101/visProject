@@ -1,6 +1,9 @@
 from flask import Flask
 from flask import jsonify,abort
+from flask_cors import CORS, cross_origin
 from lib import utils
+app = Flask(__name__)
+CORS(app)
 app = Flask(__name__)
 @app.route("/")
 def index():
@@ -46,10 +49,16 @@ def getLeagueTeams(leagueId):
     for league in leagues:
         if league[0] == leagueId:leagueName = league[2]
     return jsonify(minedLeagueData[1].get(leagueName))
+
+@app.route("/diversity/<int:teamId>",methods=['GET'])
+def getTeamDiversity(teamId):
+    return jsonify(divMap.get(teamId))
+
 if __name__ == '__main__':
     # first get all the data , before opening the port for client access.
     minedData = utils.temp1()
     minedTransfers = utils.temp2()
     minedLeagueData = utils.topPlayerEvolution()
+    divMap = utils.diversity1()
     app.run()
     

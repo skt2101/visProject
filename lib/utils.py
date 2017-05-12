@@ -420,7 +420,7 @@ def topPlayerEvolution():
         
         leagueTeamMap.get(match[2]).add(match[7])
         leagueTeamMap.get(match[2]).add(match[8])
-    for league in  [ 1729,7809,21518]:
+    for league in  [ 1729,7809,21518,4769,10257]:
         leagueName = leagueNameMap.get(league)
         retVal[leagueName] = dict()
         teams = leagueTeamMap.get(league)
@@ -446,3 +446,139 @@ def topPlayerEvolution():
             #retVal1[leagueName]["name"] = teamNameMap.get(team)
             retVal1[leagueName].append({"id":team,"name":teamNameMap.get(team)})
     return retVal,retVal1
+
+
+def diversity():
+    import collections
+    leagues = getAllDatafromTable('league')
+    leagueNameMap = dict()
+    for league in leagues:
+        leagueNameMap[league[0]] = league[2]
+    retVal = dict()
+    teamPlayer = dict()
+    # get unique teams
+    teams = getAllDatafromTable('team')
+    teams = [ team[1] for team in teams]
+    rev_matches = getAllDatafromTable('match')[::-1]
+    matches = getAllDatafromTable('match')
+    completed_teams = set()
+    for match in rev_matches:
+        home_team =  match[7]
+        away_team = match[8]
+        if teamPlayer.get(home_team) is None:
+            teamPlayer[home_team] = []
+        home_playes = match[55:66]
+        away_players = match[66:77]
+        home_to_insert =  25 - len(teamPlayer.get(home_team))
+        if home_to_insert <= 0:
+            completed_teams.add(home_team)
+        if home_to_insert > 0:teamPlayer[home_team].append(home_playes[:home_to_insert])
+        if teamPlayer.get(away_team) is None:
+            teamPlayer[away_team] = []
+        away_to_insert =  25 - len(teamPlayer.get(away_team))
+        if away_to_insert <= 0 :
+            completed_teams.add(away_team)
+        if away_to_insert >0: teamPlayer[away_team].append(away_players[:away_to_insert])
+        if len(completed_teams) == len(teams):
+            #print("done with all teams breaking")
+            break
+    #print("out of outer match loop")
+    print(teamPlayer)
+    exit()
+    for team in teamPlayer.keys():
+        t = []
+        players = teamPlayer.get(team)
+        for player in players:
+            for match in matches:
+                players = match[55:77]
+                if player in players:
+                    t.append(leagueNameMap.get(match[2]))
+        retVal[team] = collections.Counter(t)
+    print(retVal)
+
+def diversity1():
+    leagues = getAllDatafromTable('league')
+    #teams = getAllDatafromTable('team')
+    matches = removeNanPlayer(getAllDatafromTable('match'))
+    rev_matches = matches[::-1]
+    leagueNameMap = dict()
+    for league in leagues:
+        leagueNameMap[league[0]] = league[2]
+    teamNameMap = dict()
+    #for team in teams:
+    #    teamNameMap[team[1]] = team[3]
+    leagueTeamMap = dict()
+    for match in matches:
+        if leagueTeamMap.get(match[2]) is None:leagueTeamMap[match[2]]=set()
+        
+        leagueTeamMap.get(match[2]).add(match[7])
+        leagueTeamMap.get(match[2]).add(match[8])
+    teams_to_mine = []
+    for league in  [ 1729,7809,21518,10257,4769]:
+        teams_to_mine +=leagueTeamMap.get(league)
+    #print(teams_to_mine)
+    completed_teams = set()
+    teamPlayer = dict()
+    for match in rev_matches:
+        home_team =  match[7]
+        away_team = match[8]
+        if teamPlayer.get(home_team) is None:
+            teamPlayer[home_team] = set()
+        if teamPlayer.get(away_team) is None:
+            teamPlayer[away_team] = set()
+              
+        home_playes = match[55:66]
+        away_players = match[66:77]
+        for player in home_playes:
+            teamPlayer[home_team].add(player)
+            if len(teamPlayer.get(home_team)) >=25:
+                completed_teams.add(home_team)
+                break
+        for player in away_players:
+            teamPlayer[away_team].add(player)
+            if len(teamPlayer.get(away_team)) >=25:
+                completed_teams.add(away_team)
+                break
+        if len(completed_teams) == len(teams_to_mine):
+            #print("done with all teams breaking")
+            break
+    #print(teamPlayer)
+    import collections
+    retVal = dict()
+    for team in teamPlayer.keys():
+        t = []
+        players = teamPlayer.get(team)
+        for player in players:
+            for match in matches:
+                players = match[55:77]
+                if player in players:
+                    t.append(leagueNameMap.get(match[2]))
+                    break
+        #print(collections.Counter(t))
+        retVal[team] = collections.Counter(t)
+    print(retVal)
+    return retVal
+
+def prediction():
+    leagues = getAllDatafromTable('league')
+    #teams = getAllDatafromTable('team')
+    matches = removeNanPlayer(getAllDatafromTable('match'))
+    rev_matches = matches[::-1]
+    leagueNameMap = dict()
+    for league in leagues:
+        leagueNameMap[league[0]] = league[2]
+    teamNameMap = dict()
+    #for team in teams:
+    #    teamNameMap[team[1]] = team[3]
+    leagueTeamMap = dict()
+    for match in matches:
+        if leagueTeamMap.get(match[2]) is None:leagueTeamMap[match[2]]=set()
+        
+        leagueTeamMap.get(match[2]).add(match[7])
+        leagueTeamMap.get(match[2]).add(match[8])
+    retVal = dict()
+    for league in  [ 1729,7809,21518,10257,4769]:
+        teams = leagueTeamMap.get(league)
+        currentNode = dict()
+        for t in teams:
+              pass
