@@ -12,13 +12,13 @@ def index():
     
     
     resp=flask.Response(json.dumps({"abcd":"efgh"}))
-    resp.headers['Access-Control-Allow-Headers']="X-Requested-With"
+    resp.headers['Access-Control-Allow-Origin']="*"
     return resp
 @app.route("/chord",methods=['GET'])
 def getBreakDown():
     t = minedData[0]
     resp=flask.Response(json.dumps(t))
-    resp.headers['Access-Control-Allow-Headers']="X-Requested-With"
+    resp.headers['Access-Control-Allow-Origin']="*"
     return resp
 @app.route("/league/<int:leagueId>/scores",methods=['GET'])
 def getLeagueScore(leagueId):
@@ -28,7 +28,7 @@ def getLeagueScore(leagueId):
         if league[0] == leagueId:leagueName = league[2]
     t = minedData[1].get(leagueName)
     resp=flask.Response(json.dumps(t))
-    resp.headers['Access-Control-Allow-Headers']="X-Requested-With"
+    resp.headers['Access-Control-Allow-Origin']="*"
     return resp
 
 @app.route("/league/<int:leagueId>/transfers",methods=['GET'])
@@ -39,7 +39,7 @@ def getLeagueTransfer(leagueId):
         if league[0] == leagueId:leagueName = league[2]
     t = minedTransfers.get(leagueName)
     resp=flask.Response(json.dumps(t))
-    resp.headers['Access-Control-Allow-Headers']="X-Requested-With"
+    resp.headers['Access-Control-Allow-Origin']="*"
     return resp
 
 @app.route("/league/<int:leagueId>/teams/<int:teamId>/evolution",methods=['GET'])
@@ -55,7 +55,7 @@ def getTopPlayerEvolution(leagueId,teamId):
     #print(minedLeagueData[0].keys())
     t = minedLeagueData[0].get(leagueName).get(teamName)
     resp=flask.Response(json.dumps(t))
-    resp.headers['Access-Control-Allow-Headers']="X-Requested-With"
+    resp.headers['Access-Control-Allow-Origin']="*"
     return resp
     #return jsonify(minedLeagueData[0].get(leagueName).get(teamName))
 
@@ -67,7 +67,7 @@ def getLeagueTeams(leagueId):
         if league[0] == leagueId:leagueName = league[2]
     t = minedLeagueData[1].get(leagueName)
     resp=flask.Response(json.dumps(t))
-    resp.headers['Access-Control-Allow-Headers']="X-Requested-With"
+    resp.headers['Access-Control-Allow-Origin']="*"
     return resp
     
 
@@ -75,13 +75,13 @@ def getLeagueTeams(leagueId):
 def getTeamDiversity(teamId):
     t = divMap.get(teamId)
     resp=flask.Response(json.dumps(t))
-    resp.headers['Access-Control-Allow-Headers']="X-Requested-With"
+    resp.headers['Access-Control-Allow-Origin']="*"
     return resp
 @app.route("/predictions/<int:leagueId>",methods=['GET'])
 def predict(leagueId):
     t = predictions.get(leagueId)
     resp=flask.Response(json.dumps(t))
-    resp.headers['Access-Control-Allow-Headers']="X-Requested-With"
+    resp.headers['Access-Control-Allow-Origin']="*"
     return resp
 
 if __name__ == '__main__':
