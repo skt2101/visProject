@@ -6,7 +6,8 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.manifold import TSNE
 import numpy as np
 def generatePlayerStats():
-    
+    query = """SELECT * FROM Player_Attributes a
+           INNER JOIN (SELECT player_name, player_api_id AS p_id FROM Player) b ON a.player_api_id = b.p_id;"""
     data = []
     for row in Database().execute(query):
         data.append(row)
